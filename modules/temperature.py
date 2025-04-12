@@ -25,11 +25,11 @@ except KeyboardInterrupt as kbi:
 data = load_data()
 
 data.columns = [col.strip() for col in data.columns]
-expected_columns = {'Date (Europe/London)', 'Humidity (%)'}
+expected_columns = {'Date (Europe/London)', 'Temperature (°C)'}
 if not expected_columns.issubset(data.columns):
     raise ValueError(f"Missing expected columns: {expected_columns - set(data.columns)}")
 
-data = data[['Date (Europe/London)', 'Humidity (%)']]
+data = data[['Date (Europe/London)', 'Temperature (°C)']]
 
 data['Date (Europe/London)'] = data['Date (Europe/London)'].astype(str).str.strip()
 
@@ -38,18 +38,18 @@ data['Date (Europe/London)'] = pd.to_datetime(data['Date (Europe/London)'], form
 
 data = data.sort_values(by='Date (Europe/London)')
 
-data['Humidity (%)'] = (data['Humidity (%)'].astype(str).str.replace(',', '', regex=True))
+data['Temperature (°C)'] = (data['Temperature (°C)'].astype(str).str.replace(',', '', regex=True))
 
-data['Humidity (%)'] = pd.to_numeric(data['Humidity (%)'], errors='coerce')
+data['Temperature (°C)'] = pd.to_numeric(data['Temperature (°C)'], errors='coerce')
 
 # Print data ranges
 print("\n Date range found:")
 print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
 print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
-print("\n Humidity range found:")
-y_min = (data['Humidity (%)'].min())
-y_max = (data['Humidity (%)'].max())
-print(f"    {y_min} - {y_max} %")
+print("\n Temperature range found:")
+y_min = (data['Temperature (°C)'].min())
+y_max = (data['Temperature (°C)'].max())
+print(f"    {y_min} - {y_max} °C")
 
 def get_user_date_range():
     while True:
@@ -84,18 +84,18 @@ if data.empty:
 fig, ax = plt.subplots(figsize=(11.69, 8.27))  # A4 landscape size in inches
 
 # plot the data
-ax.plot(data['Date (Europe/London)'], data['Humidity (%)'], linestyle='solid', color='blue',
-        label='Humidity')  # Label for legend
+ax.plot(data['Date (Europe/London)'], data['Temperature (°C)'], linestyle='solid', color='darkkhaki',
+        label='Air Temperature')
 
 # X-axis configuration
 x_min = data['Date (Europe/London)'].min()
 x_max = data['Date (Europe/London)'].max()
-margin = (x_max - x_min) * 0.01  # 1% buffer
+margin = (x_max - x_min) * 0.01  # 2% buffer
 ax.set_xlim(x_min - margin, x_max + margin)
 
 # Y-axis configuration with buffer
-y_min = data['Humidity (%)'].min()
-y_max = data['Humidity (%)'].max()
+y_min = data['Temperature (°C)'].min()
+y_max = data['Temperature (°C)'].max()
 buffer = (y_max - y_min) * 0.05  # 5% buffer
 
 # Apply rounding and buffer
@@ -108,41 +108,40 @@ ax.minorticks_on()
 # Format the chart
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %y'))
-    # Minor ticks for every day
+# Minor ticks for every day
 ax.xaxis.set_minor_locator(mdates.DayLocator(interval=1))
 
-    # Enable grid
+# Enable grid
 ax.grid(which='both', linestyle=':', linewidth=0.5, color='gainsboro')
 ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
 ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
-    # Set axis labels
-ax.set_ylabel('Humidity (%)')  # Label for y-axis (left).
-ax.set_xlabel('Daily date markers', fontsize=8) # Date label
-
+# Set axis labels
+ax.set_ylabel('Air Temperature (°C)')  # Label for y-axis (left).
+ax.set_xlabel('Daily date markers')  # Date label
 
 # Set chart Titles
-fig.suptitle(f"{station_location} Air Humidity", fontsize=20)
+fig.suptitle(f"{station_location} Air Temperature", fontsize=20)
 ax.set_title(f"{data['Date (Europe/London)'].min().strftime('%d %B %Y')} - "
               f"{data['Date (Europe/London)'].max().strftime('%d %B %Y')}", fontsize=12)
 
 # Stats
-    # Remove NaN or infinite values
+# Remove NaN or infinite values
 data = data.replace([np.inf, -np.inf], np.nan).dropna()
-    # Compute statistics
-min_val = data['Humidity (%)'].min()
-max_val = data['Humidity (%)'].max()
-avg_val = data['Humidity (%)'].mean()
-    # Superimpose Min, Max, and Avg lines
-ax.axhline(min_val, color='lightblue', linestyle='--', label=f'Min: {min_val:.2f} %')
-ax.axhline(max_val, color='darkblue', linestyle='--', label=f'Max: {max_val:.2f} %')
-ax.axhline(avg_val, color='aqua', linestyle='--', label=f'Average: {avg_val:.2f} %')
-    # Insert the legend
+# Compute statistics
+min_val = data['Temperature (°C)'].min()
+max_val = data['Temperature (°C)'].max()
+avg_val = data['Temperature (°C)'].mean()
+# Superimpose Min, Max, and Avg lines
+ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f} °C')
+ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f} °C')
+ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f} °C')
+# Insert the legend
 ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
 # Notes
-ax.text(0.5, -0.4,
-        'Humidity is a measure of moisture in the air. 100% means fully saturated and cannot hold any more.',
-        transform=ax.transAxes, fontsize=10, color='black', ha='center')
+ax.text(0.5, -0.4, 'Temperatures shown are "ambient" (the temperature of the free flowing air '
+                   'protected from direct sunlight).', transform=ax.transAxes, fontsize=10, color='black',
+        ha='center')
 
 # Insert logo
 logo = mpimg.imread("helpers/img/logo.jpg")
@@ -163,7 +162,7 @@ current_date = date.today()
 current_time = datetime.now()
 
 pdf_filename = (f'{analytics_path}{current_date.strftime('%d%m%Y')}_{current_time.strftime('%H:%M')}hrs_'
-                            f'{station_location}_Humidity_Report.pdf')
+                            f'{station_location}_Temperature_Report.pdf')
 
 with PdfPages(pdf_filename) as pdf:
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
