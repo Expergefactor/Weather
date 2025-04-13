@@ -29,6 +29,32 @@ You can view examples of the analytics in the '/example' folder. Note: individua
  * Keep adding more weather station files and use option 2 to ingest them into the working database
  * Option 1 from the main menu is a reminder of some of the information contained here.
 
+# COMPONENTS:
+System:
+  * menu.py         Control module for all functions
+  * compile.py	    Compiles database files in preparation for processing
+  * utilities.py    Hosts various supporting functions
+  * report_full.py  Conducts all available analytics and generates two reports (private & public).
+  
+Private Analytics:
+  * indoor_temp.py      Charting - indoor air temperature (line) over time.
+  * indoor_humidity.py 	Charting - indoor humidity (line) over time.
+  * indoor_humidtemp.py Charting - indoor air temperature (bar) against humidity (line) over time.
+  
+Public Analytics:
+  * humidity.py         Charting - humidity (line) over time.
+  * humidityrain.py     Charting - humidity (line) against rainfall (bar) over time.
+  * pressure.py         Charting - atmospheric pressure (line) over time.
+  * rain.py             Charting - rainfall (bar) over time.
+  * temperature.py      Charting - outdoor air temperature (line) over time.
+  * windgust.py         Charting - wind gusts (line) over time.
+  * windspeed.py        Charting - wind speed (line) over time.
+  * windspeeddistro.py  Charting - wind direction distribution (radial).
+  * windspeedgust.py    Charting - wind speed (bar) against wind gusts (line) over time.
+  * solaruv.py	        Charting - solar radiation (bar) against UV index (line) over time.
+  * storms.py	          Charting - atmospheric pressure (line), rainfall (bar) & wind gust (line) over time.
+
+
 # DEBUG
 
 Lines 48-52 in the 'helpers/debug.py' script contain the expected column headers that should exist in the original database files. This code can be customised to suit your .csv based dataset. You will have to do this if your column headers differ from those presneted. 
