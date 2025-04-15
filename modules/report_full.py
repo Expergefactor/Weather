@@ -8,19 +8,59 @@ import matplotlib.image as mpimg
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.lines import Line2D
 from datetime import date, datetime
-from helpers.utilities import load_data, copyright_text, get_user_date_range, get_station_location
+from helpers.utilities import (load_data, copyright_text, get_user_date_range, get_station_location, contact_details)
 
 
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-try:
-    station_location = get_station_location()
-except Exception as exception:
-    print(f"{exception}")
-except KeyboardInterrupt as kbi:
-    print(f"{kbi}")
+def title(pdf, start_date, end_date):
+
+    data = load_data()
+
+    data.columns = [col.strip() for col in data.columns]
+    expected_columns = {'Date (Europe/London)'}
+    if not expected_columns.issubset(data.columns):
+        raise ValueError(f"Missing expected columns: {expected_columns - set(data.columns)}")
+
+    data = data[['Date (Europe/London)']]
+
+    data['Date (Europe/London)'] = data['Date (Europe/London)'].astype(str).str.strip()
+    data['Date (Europe/London)'] = pd.to_datetime(data['Date (Europe/London)'], format='%Y-%m-%d %H:%M:%S',
+                                                  errors='coerce')
+
+    data = data.sort_values(by='Date (Europe/London)')
+
+    data = data[(data['Date (Europe/London)'] >= start_date) & (data['Date (Europe/London)'] <= end_date)]
+    if data.empty:
+        print("\n\033[1;93m Warning: No data available for the selected date range.\n"
+              " Use function 1 to check the database date range.\033[0m\n")
+        return
+
+    fig, ax = plt.subplots(figsize=(11.69, 8.27))
+
+    fig.text(0.5, 0.55, station_location + ' Weather Report', fontsize=35, color='black', ha='center')
+
+    fig.text(0.5, 0.45, f'{data['Date (Europe/London)'].min().strftime('%d %B %Y')}' + ' - ' +
+             f'{data['Date (Europe/London)'].max().strftime('%d %B %Y')}',
+             fontsize=30, color='black', ha='center')
+
+    logo = mpimg.imread("helpers/img/logo.jpg")
+    logo_ax = fig.add_axes([0.47, 0.08, 0.07, 0.07])  # Adjust position & size (left, bottom, width, height)
+    logo_ax.imshow(logo, interpolation="antialiased")
+    logo_ax.axis("off")
+
+    fig.text(0.5, 0.05, copyright_text(), fontsize=6, color='black', ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
+    ax.axis('off')
+
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
+    pdf.savefig(fig, dpi=300)
+    plt.close()
+    print("    Generated Title Page")
 
 
 def storms(pdf, start_date, end_date):
@@ -186,8 +226,11 @@ def storms(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
+    ax1.text(0.5, -1.83, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax1.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -342,8 +385,11 @@ def humidity_rain(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
+    ax1.text(0.5, -1.83, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax1.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -483,8 +529,11 @@ def wind_speed_gust(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
+    ax1.text(0.5, -1.83, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax1.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -636,8 +685,11 @@ def solaruv(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
+    ax1.text(0.5, -1.83, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax1.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -739,8 +791,11 @@ def temperature(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -846,8 +901,11 @@ def pressure(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -972,8 +1030,11 @@ def rain(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1078,8 +1139,11 @@ def humidity(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1181,8 +1245,11 @@ def wind_speed(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1283,8 +1350,11 @@ def wind_gust(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
              ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1360,6 +1430,9 @@ def wind_direction(pdf, start_date, end_date):
     # Author details
     ax.text(0.5, -0.25, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -0.27), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.2, right=0.8, top=0.85, bottom=0.2)
     pdf.savefig(fig, dpi=300)
@@ -1461,8 +1534,11 @@ def temperature_indoor(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1567,8 +1643,11 @@ def humidity_indoor(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+    ax.text(0.5, -1.83, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1721,8 +1800,11 @@ def temperature_humidity_indoor(pdf, start_date, end_date):
     logo_ax.axis("off")  # Hide axes around the logo
 
     # Author details
-    ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
+    ax1.text(0.5, -1.83, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
             ha='center')
+
+    ax1.annotate(contact_details(), xy=(0.5, -1.9), ha='center', va='center', fontsize=7,
+                 color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.6)  # 1 cm margins
     pdf.savefig(fig, dpi=300)
@@ -1733,8 +1815,19 @@ def temperature_humidity_indoor(pdf, start_date, end_date):
 def generate_full_report():
     data = load_data()
 
-    data['Date (Europe/London)'] = pd.to_datetime(data['Date (Europe/London)'], errors='coerce')
-    data = data.dropna()
+    data.columns = [col.strip() for col in data.columns]
+    expected_columns = {'Date (Europe/London)'}
+    if not expected_columns.issubset(data.columns):
+        raise ValueError(f"Missing expected columns: {expected_columns - set(data.columns)}")
+    data = data[['Date (Europe/London)']]
+    data['Date (Europe/London)'] = data['Date (Europe/London)'].astype(str).str.strip()
+    data['Date (Europe/London)'] = pd.to_datetime(data['Date (Europe/London)'], format='%Y-%m-%d %H:%M:%S',
+                                                  errors='coerce')
+    data = data.sort_values(by='Date (Europe/London)')
+    # Print data ranges
+    print("\n Date range found:")
+    print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
+    print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
 
     start_date, end_date = get_user_date_range(data)
 
@@ -1748,6 +1841,7 @@ def generate_full_report():
                            f'{station_location}_Public_Weather_Report.pdf')
 
     with PdfPages(public_pdf_filename) as pdf:
+        title(pdf, start_date, end_date)
         storms(pdf, start_date, end_date)
         humidity_rain(pdf, start_date, end_date)
         wind_speed_gust(pdf, start_date, end_date)
@@ -1775,16 +1869,14 @@ def generate_full_report():
           f'\n    {private_pdf_filename}\n\033[0m')
 
 
-
 def main():
     try:
-        clear_console()
         generate_full_report()
-
     except Exception as e:
         print(f"{e}")
 
 
+station_location = get_station_location()
 
 
 if __name__ == '__main__':
