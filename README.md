@@ -59,4 +59,4 @@ Public Analytics:
 
 Lines 48-52 in the 'helpers/debug.py' script contain the expected column headers that should exist in the original database files. This code can be customised to suit your .csv based dataset. You will have to do this if your column headers differ from those presneted. 
 
-If your column headers do not match those presented, you will need to update each module script accordingly to suit your requirements. 
+If your column headers do not match those shown, you will need to update each module script accordingly to suit your requirements. 
