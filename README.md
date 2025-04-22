@@ -54,6 +54,30 @@ Public Analytics:
   * solaruv.py	        Charting - solar radiation (bar) against UV index (line) over time.
   * storms.py	          Charting - atmospheric pressure (line), rainfall (bar) & wind gust (line) over time.
 
+# DEPENDENCIES:
+
+ *  chardet – character encoding detection.
+ *  pandas – data manipulation and analysis library.
+ *  numpy – numerical computations.
+ *  matplotlib – Plotting library.
+
+These are third-party libraries and need to be installed manually:
+
+```bash
+sudo apt install python3-pandas
+```
+
+```bash
+sudo apt install python3-chardet
+```
+
+```bash
+sudo apt install python3-numpy
+```
+
+```bash
+sudo apt install python3-matplotlib
+```
 
 # DEBUG
 
