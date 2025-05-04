@@ -64,19 +64,7 @@ Public Analytics:
 These are third-party libraries and need to be installed manually:
 
 ```bash
-sudo apt install python3-pandas
-```
-
-```bash
-sudo apt install python3-chardet
-```
-
-```bash
-sudo apt install python3-numpy
-```
-
-```bash
-sudo apt install python3-matplotlib
+sudo apt install python3-pandas python3-chardet python3-numpy python3-matplotlib
 ```
 
 # DEBUG
