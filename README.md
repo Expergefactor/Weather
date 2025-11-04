@@ -1,9 +1,25 @@
 # Weather
 Weather Analytics for weather stations
 
+Autumn 2025 Update:
+ * Bugs squished:
+ * Removed some redundant imports
+ * Fixed rain/wind gust scaling issue in storms analysis
+ * Fixed solar radiation scaling issue in Solar Radiation & UV Index analysis
+ * Fixed date axis buffer issue on some analytics
+ * Fixed units repetition on full report chats keys
+ * Adjusted some axis labels
+New features:
+ * Updated main menu.
+ * Updated help & information.
+ * New utility added to normalise older date formats.
+ * Log generation for cleansed lines when normalising files.
+ * Compiled databases are now sorted chronologically.
+ * 'Snapshot' feature 
+
 Main Menu:
 
-![menu](https://github.com/Expergefactor/Weather/blob/main/helpers/img/menu.jpg)
+![menu](https://github.com/Expergefactor/Weather/blob/main/helpers/img/menu.png)
 
 Sub Menu (option 4 from main menu):
 
@@ -13,6 +29,19 @@ Sub Menu (option 4 from main menu):
 This software is designed to be used with weather station data and provides a total of 14 analytics:
  * 11 public (outdoor)
  * 3 private (indoor)
+ * 'Snapshot' feature provides an 'at a glance', single page report for:
+    Hottest Day
+    Driest Period
+    Coldest Day
+    Wettest Day
+    Biggest Downpour
+    Total Rainfall
+    Windiest Day
+    Average wind direction
+    Snapshot reports on 3 criteria: 
+    For the user-defined date period,
+    For 'Year-To-Date' &,
+    Since your records began. 
 
 You have the option of generating a full report (from the main menu) which conducts analytics on all datasets or, conducting a single report (from the sub menu using option 4) for an individual dataset.
 
