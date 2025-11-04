@@ -6,7 +6,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 import matplotlib.image as mpimg
 from matplotlib.lines import Line2D
-from helpers.utilities import load_data, copyright_text, get_station_location
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
 from datetime import date, datetime
 
 
@@ -42,6 +42,15 @@ data = data.sort_values(by='Date (Europe/London)')
 data['Inside humidity (%)'] = (data['Inside humidity (%)'].astype(str).str.replace(',', '', regex=True))
 
 data['Inside humidity (%)'] = pd.to_numeric(data['Inside humidity (%)'], errors='coerce')
+
+# Print data ranges
+print("\n Date range found:")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
+print("\n Inside humidity range found:")
+y_min = (data['Inside humidity (%)'].min())
+y_max = (data['Inside humidity (%)'].max())
+print(f"    {y_min} - {y_max} %")
 
 def get_user_date_range():
     while True:
@@ -82,7 +91,7 @@ ax.plot(data['Date (Europe/London)'], data['Inside humidity (%)'], linestyle='so
 # X-axis configuration
 x_min = data['Date (Europe/London)'].min()
 x_max = data['Date (Europe/London)'].max()
-margin = (x_max - x_min) * 0.01  # 2% buffer
+margin = (x_max - x_min) * 0.01  # 1% buffer
 ax.set_xlim(x_min - margin, x_max + margin)
 
 # Y-axis configuration with buffer
@@ -144,6 +153,9 @@ logo_ax.axis("off")  # Hide axes around the logo
 # Author details
 ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
         ha='center')
+
+ax.annotate(contact_details(), xy=(0.5, -1.83), ha='center', va='center', fontsize=7,
+             color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
 # Save to PDF with 1 cm margins
 analytics_path = os.path.join('analytics/')

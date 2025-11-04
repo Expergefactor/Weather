@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.dates as mdates
 import matplotlib.image as mpimg
-from helpers.utilities import load_data, copyright_text, get_station_location
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
 from datetime import date, datetime
 
 
@@ -45,8 +44,8 @@ data['Average wind speed (mph)'] = pd.to_numeric(data['Average wind speed (mph)'
 
 # Print data ranges
 print("\n Date range found:")
-print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
-print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
 
 def get_user_date_range():
     while True:
@@ -115,8 +114,11 @@ logo_ax.imshow(logo, interpolation="antialiased")
 logo_ax.axis("off")  # Hide axes around the logo
 
 # Author details
-ax.text(0.5, -0.25, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
+ax.text(0.5, -0.25, copyright_text(), transform=ax.transAxes, fontsize=7, color='black',
         ha='center')
+
+ax.annotate(contact_details(), xy=(0.5, -0.27), ha='center', va='center', fontsize=7,
+             color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
 # Save to PDF with 1 cm margins
 analytics_path = os.path.join('analytics/')

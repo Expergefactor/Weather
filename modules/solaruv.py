@@ -1,5 +1,4 @@
 import os
-import chardet
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +7,7 @@ import matplotlib.dates as mdates
 import matplotlib.image as mpimg
 from matplotlib.lines import Line2D
 import math
-from helpers.utilities import load_data, copyright_text, get_station_location
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
 from datetime import date, datetime
 
 
@@ -49,8 +48,8 @@ data['UV index'] = pd.to_numeric(data['UV index'], errors='coerce')
 
 # Print data ranges
 print("\n Date range found:")
-print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
-print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
 print("\n Solar Radiation range found:")
 y_min = (data['Solar radiation (W/m²)'].min())
 y_max = (data['Solar radiation (W/m²)'].max())
@@ -95,7 +94,7 @@ fig, ax1 = plt.subplots(figsize=(11.69, 8.27))  # A4 landscape size in inches
 # plot the data
 # Plot the atmospheric pressure data on the primary y-axis. Label is for legend.
 ax1.bar(data['Date (Europe/London)'], data['Solar radiation (W/m²)'], linestyle='solid', color='gold',
-        label='Solar radiation')
+        label='Solar radiation (W/m²)')
 # Create a secondary y-axis
 ax2 = ax1.twinx()
 # Plot the secondary y-axis
@@ -115,7 +114,7 @@ def round_up_nearest(value, base):
 
 # Solar Radiation (larger range, round to nearest 10)
 b_min = min(0, data['Solar radiation (W/m²)'].min())
-b_max = round_up_nearest(data['Solar radiation (W/m²)'].max(), 10)
+b_max = round_up_nearest(data['Solar radiation (W/m²)'].max(), 10) +50 # +5 buffer
 ax1.set_ylim(b_min, b_max)
 ax1.minorticks_on()
 
@@ -143,7 +142,7 @@ ax2.tick_params(axis='x', which='major', length=10, width=1, pad=5)
 ax2.tick_params(axis='x', which='minor', length=5, width=1)
 # Set axis labels
 ax1.set_xlabel('Daily date markers')  # Date label
-ax1.set_ylabel('Solar radiation (W/m²)')  # Label for y-axis (left).
+ax1.set_ylabel('Solar radiation')  # Label for y-axis (left).
 ax2.set_ylabel('UV Index')  # Label for y-axis (right).
 
 # Set chart Titles
@@ -157,9 +156,9 @@ data = data.replace([np.inf, -np.inf], np.nan).dropna()
 # Set Max, Min, & Avg legend labels
 stat_labels = [
     Line2D([0], [0], color='white', lw=0, label=f''),
-    Line2D([0], [0], color='white', lw=0, label=f'Minimum: '),
-    Line2D([0], [0], color='white', lw=0, label=f'Maximum: '),
-    Line2D([0], [0], color='white', lw=0, label=f'Average: '),
+    Line2D([0], [0], color='white', lw=0, label=f'Minimum:'),
+    Line2D([0], [0], color='white', lw=0, label=f'Maximum:'),
+    Line2D([0], [0], color='white', lw=0, label=f'Average:'),
 ]
 # Compute UV Index statistics
 uvmin_val = data['UV index'].min()
@@ -175,9 +174,9 @@ srmin_val = data['Solar radiation (W/m²)'].min()
 srmax_val = data['Solar radiation (W/m²)'].max()
 sravg_val = data['Solar radiation (W/m²)'].mean()
 sr_stat_handles = [
-    Line2D([0], [0], color='white', lw=0, label=f'{srmin_val:.2f} W/m²'),
-    Line2D([0], [0], color='white', lw=0, label=f'{srmax_val:.2f} W/m²'),
-    Line2D([0], [0], color='white', lw=0, label=f'{sravg_val:.2f} W/m²'),
+    Line2D([0], [0], color='white', lw=0, label=f'{srmin_val:.2f}'),
+    Line2D([0], [0], color='white', lw=0, label=f'{srmax_val:.2f}'),
+    Line2D([0], [0], color='white', lw=0, label=f'{sravg_val:.2f}'),
 ]
 
 # Combine and insert legends for the three datasets
@@ -208,6 +207,9 @@ logo_ax.axis("off")  # Hide axes around the logo
 # Author details
 ax1.text(0.5, -1.8, copyright_text(), transform=ax1.transAxes, fontsize=6, color='black',
          ha='center')
+
+ax1.annotate(contact_details(), xy=(0.5, -1.83), ha='center', va='center', fontsize=7,
+             color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
 # Save to PDF with 1 cm margins
 analytics_path = os.path.join('analytics/')

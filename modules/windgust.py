@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 import matplotlib.image as mpimg
-from helpers.utilities import load_data, copyright_text, get_station_location
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
 from datetime import date, datetime
 
 
@@ -44,8 +44,8 @@ data['Gust of wind (mph)'] = pd.to_numeric(data['Gust of wind (mph)'], errors='c
 
 # Print data ranges
 print("\n Date range found:")
-print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
-print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
 print("\n Wind Gust range found:")
 y_min = (data['Gust of wind (mph)'].min())
 y_max = (data['Gust of wind (mph)'].max())
@@ -97,7 +97,7 @@ ax.set_xlim(x_min - margin, x_max + margin)
 a_min = data['Gust of wind (mph)'].min()
 a_max = data['Gust of wind (mph)'].max()
 # Round down min to the nearest 5, and up max to the nearest 5
-y_min = np.floor(a_min / 5) * 5
+y_min = np.floor(a_min)
 y_max = np.ceil(a_max / 5) * 5
 # Apply the new limits to the y-axis
 ax.set_ylim(y_min, y_max)
@@ -114,7 +114,7 @@ ax.grid(which='both', linestyle=':', linewidth=0.5, color='gainsboro')
 ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
 ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
 # Set axis labels
-ax.set_ylabel('Wind Gust (mph)')  # Label for y-axis (left).
+ax.set_ylabel('Wind Gust')  # Label for y-axis (left).
 ax.set_xlabel('Daily date markers')  # Date label
 
 # Set chart Titles
@@ -149,6 +149,9 @@ logo_ax.axis("off")  # Hide axes around the logo
 # Author details
 ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
         ha='center')
+
+ax.annotate(contact_details(), xy=(0.5, -1.83), ha='center', va='center', fontsize=7,
+             color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
 # Save to PDF with 1 cm margins
 analytics_path = os.path.join('analytics/')

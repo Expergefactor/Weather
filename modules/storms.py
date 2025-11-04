@@ -1,5 +1,4 @@
 import os
-import chardet
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,7 +6,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 import matplotlib.image as mpimg
 from matplotlib.lines import Line2D
-from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details, contact_details
 from datetime import date, datetime
 
 
@@ -43,10 +42,30 @@ data['Atmospheric pressure (mbar)'] = \
     (data['Atmospheric pressure (mbar)'].astype(str).str.replace(',', '', regex=True))
 data['Atmospheric pressure (mbar)'] = pd.to_numeric(data['Atmospheric pressure (mbar)'], errors='coerce')
 
+data['Rain (mm)'] = (data['Rain (mm)'].astype(str).str.replace(',', '', regex=True))
 data['Rain (mm)'] = pd.to_numeric(data['Rain (mm)'], errors='coerce')
 
 data['Gust of wind (mph)'] = (data['Gust of wind (mph)'].astype(str).str.replace(',', '', regex=True))
 data['Gust of wind (mph)'] = pd.to_numeric(data['Gust of wind (mph)'], errors='coerce')
+
+# Print data ranges
+print("\n Date range found:")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
+print("\n Atmospheric pressure range found:")
+y_min = (data['Atmospheric pressure (mbar)'].min())
+y_max = (data['Atmospheric pressure (mbar)'].max())
+print(f"    {y_min} - {y_max} mbar")
+print("\n Rain range found:")
+y_min = (data['Rain (mm)'].min())
+y_max = (data['Rain (mm)'].max())
+print(f"    {y_min} - {y_max} mm")
+print("\n Gust of wind range found:")
+y_min = (data['Gust of wind (mph)'].min())
+y_max = (data['Gust of wind (mph)'].max())
+print(f"    {y_min} - {y_max} mph")
+
+
 
 def get_user_date_range():
     while True:
@@ -97,25 +116,35 @@ ax3.plot(data['Date (Europe/London)'], data['Atmospheric pressure (mbar)'], line
 # x axis configuration
 x_min = data['Date (Europe/London)'].min()
 x_max = data['Date (Europe/London)'].max()
-margin = (x_max - x_min) * 0.02 # 2% of the data range
-    # Set the x-axis limits to fit the data exactly with reduced buffer
+margin = (x_max - x_min) * 0.01  # 1% of the data range
+# Set the x-axis limits to fit the data exactly with reduced buffer
 ax1.set_xlim(x_min - margin, x_max + margin)
 
-    # Compute and round y-axis limits for ax1 (Gust of Wind)
-buffer = 5
-a_min = data['Gust of wind (mph)'].min()
-a_max = data['Gust of wind (mph)'].max()
-y_min = np.floor(a_min / 10) * 10
-y_max = np.ceil(a_max / 10) * 10 + buffer
-ax1.set_ylim(y_min, y_max)
+# Grab the minima / maxima from the two series
+r_min = data['Rain (mm)'].min()
+r_max = data['Rain (mm)'].max()
+w_min = data['Gust of wind (mph)'].min()
+w_max = data['Gust of wind (mph)'].max()
+
+# Overall min / max across both variables
+overall_min = min(r_min, w_min)
+overall_max = max(r_max, w_max)
+
+# Round outward to the nearest 5
+y_min = np.floor(overall_min / 5) * 5
+y_max = np.ceil(overall_max / 5) * 5
+
+# Apply the limits to both axes
+ax1.set_ylim(y_min, y_max)  # left axis – rain
+ax2.set_ylim(y_min, y_max)  # right axis – wind
 ax1.minorticks_on()
 
-    # Ensure ax2 mirrors ax1's scale without modifying labels or ticks
-ax2.set_ylim(y_min, y_max)
-ax2.yaxis.set_ticks_position('right')
-ax2.set_yticks([])  # Removes y-ticks on ax2
+# Right axis (wind) – put ticks on the right side but hide the numbers
+ax2.yaxis.set_ticks_position('right')  # ticks on the right side
+ax2.set_yticks([])  # hide the numeric labels
+ax2.minorticks_on()
 
-    # Compute and round y-axis limits for ax3 (Atmospheric Pressure)
+# Compute and round y-axis limits for ax3 (Atmospheric Pressure)
 b_min = data['Atmospheric pressure (mbar)'].min()
 b_max = data['Atmospheric pressure (mbar)'].max()
 y3_min = np.floor(b_min / 10) * 10

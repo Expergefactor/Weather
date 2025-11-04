@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 import matplotlib.image as mpimg
-from helpers.utilities import load_data, copyright_text, get_station_location
+from helpers.utilities import load_data, copyright_text, get_station_location, contact_details
 from datetime import date, datetime
 
 
@@ -44,8 +44,8 @@ data['Temperature (°C)'] = pd.to_numeric(data['Temperature (°C)'], errors='coe
 
 # Print data ranges
 print("\n Date range found:")
-print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
-print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
+print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
 print("\n Temperature range found:")
 y_min = (data['Temperature (°C)'].min())
 y_max = (data['Temperature (°C)'].max())
@@ -90,7 +90,7 @@ ax.plot(data['Date (Europe/London)'], data['Temperature (°C)'], linestyle='soli
 # X-axis configuration
 x_min = data['Date (Europe/London)'].min()
 x_max = data['Date (Europe/London)'].max()
-margin = (x_max - x_min) * 0.01  # 2% buffer
+margin = (x_max - x_min) * 0.01  # 1% buffer
 ax.set_xlim(x_min - margin, x_max + margin)
 
 # Y-axis configuration with buffer
@@ -116,7 +116,7 @@ ax.grid(which='both', linestyle=':', linewidth=0.5, color='gainsboro')
 ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
 ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
 # Set axis labels
-ax.set_ylabel('Air Temperature (°C)')  # Label for y-axis (left).
+ax.set_ylabel('Air Temperature')  # Label for y-axis (left).
 ax.set_xlabel('Daily date markers')  # Date label
 
 # Set chart Titles
@@ -132,9 +132,9 @@ min_val = data['Temperature (°C)'].min()
 max_val = data['Temperature (°C)'].max()
 avg_val = data['Temperature (°C)'].mean()
 # Superimpose Min, Max, and Avg lines
-ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f} °C')
-ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f} °C')
-ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f} °C')
+ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f}°C')
+ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f}°C')
+ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f}°C')
 # Insert the legend
 ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
@@ -152,6 +152,9 @@ logo_ax.axis("off")  # Hide axes around the logo
 # Author details
 ax.text(0.5, -1.8, copyright_text(), transform=ax.transAxes, fontsize=6, color='black',
         ha='center')
+
+ax.annotate(contact_details(), xy=(0.5, -1.83), ha='center', va='center', fontsize=7,
+             color='blue', xycoords='axes fraction', url=f'mailto:{contact_details()}')
 
 # Save to PDF with 1 cm margins
 analytics_path = os.path.join('analytics/')

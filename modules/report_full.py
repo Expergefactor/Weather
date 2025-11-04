@@ -83,6 +83,7 @@ def storms(pdf, start_date, end_date):
         (data['Atmospheric pressure (mbar)'].astype(str).str.replace(',', '', regex=True))
     data['Atmospheric pressure (mbar)'] = pd.to_numeric(data['Atmospheric pressure (mbar)'], errors='coerce')
 
+    data['Rain (mm)'] = (data['Rain (mm)'].astype(str).str.replace(',', '', regex=True))
     data['Rain (mm)'] = pd.to_numeric(data['Rain (mm)'], errors='coerce')
 
     data['Gust of wind (mph)'] = (data['Gust of wind (mph)'].astype(str).str.replace(',', '', regex=True))
@@ -99,38 +100,48 @@ def storms(pdf, start_date, end_date):
 
     # plot the data
     # Plot rainfall data on the primary y-axis. Label is for legend.
-    ax1.bar(data['Date (Europe/London)'], data['Rain (mm)'], color='darkblue', label='Rainfall')
+    ax1.bar(data['Date (Europe/London)'], data['Rain (mm)'], color='darkblue', label='Rainfall (mm)')
     # Create a third y-axis
     ax2 = ax1.twinx()
     # Plot the Gust of Wind on the secondary y-axis. Label is for legend.
     ax2.plot(data['Date (Europe/London)'], data['Gust of wind (mph)'], linestyle='solid', color='cornflowerblue',
-             label='Wind Gust', alpha=0.5)
+             label='Wind Gust (mph)', alpha=0.5)
     # Create a secondary y-axis
     ax3 = ax2.twinx()
     # Plot Air Pressure on the third y-axis. Label is for legend.
     ax3.plot(data['Date (Europe/London)'], data['Atmospheric pressure (mbar)'], linestyle='solid', color='lime',
-             label='Air Pressure')
+             label='Air Pressure (mbar)')
 
     # x axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
-    margin = (x_max - x_min) * 0.02  # 2% of the data range
+    margin = (x_max - x_min) * 0.01  # 1% of the data range
     # Set the x-axis limits to fit the data exactly with reduced buffer
     ax1.set_xlim(x_min - margin, x_max + margin)
 
-    # Compute and round y-axis limits for ax1 (Gust of Wind)
-    buffer = 5
-    a_min = data['Gust of wind (mph)'].min()
-    a_max = data['Gust of wind (mph)'].max()
-    y_min = np.floor(a_min / 10) * 10
-    y_max = np.ceil(a_max / 10) * 10 + buffer
-    ax1.set_ylim(y_min, y_max)
+    # Grab the minima / maxima from the two series
+    r_min = data['Rain (mm)'].min()
+    r_max = data['Rain (mm)'].max()
+    w_min = data['Gust of wind (mph)'].min()
+    w_max = data['Gust of wind (mph)'].max()
+
+    # Overall min / max across both variables
+    overall_min = min(r_min, w_min)
+    overall_max = max(r_max, w_max)
+
+    # Round outward to the nearest 5
+    y_min = np.floor(overall_min / 5) * 5
+    y_max = np.ceil(overall_max / 5) * 5
+
+    # Apply the limits to both axes
+    ax1.set_ylim(y_min, y_max)  # left axis – rain
+    ax2.set_ylim(y_min, y_max)  # right axis – wind
     ax1.minorticks_on()
 
-    # Ensure ax2 mirrors ax1's scale without modifying labels or ticks
-    ax2.set_ylim(y_min, y_max)
-    ax2.yaxis.set_ticks_position('right')
-    ax2.set_yticks([])  # Removes y-ticks on ax2
+    # Right axis (wind) – put ticks on the right side but hide the numbers
+    ax2.yaxis.set_ticks_position('right')  # ticks on the right side
+    ax2.set_yticks([])  # hide the numeric labels
+    ax2.minorticks_on()
 
     # Compute and round y-axis limits for ax3 (Atmospheric Pressure)
     b_min = data['Atmospheric pressure (mbar)'].min()
@@ -155,7 +166,7 @@ def storms(pdf, start_date, end_date):
 
     # Set axis labels
     ax1.set_xlabel('Daily date markers')  # Date label
-    ax1.set_ylabel('Rainfall (mm) & Wind Gust (mph)')  # Label for y-axis (left).
+    ax1.set_ylabel('Rainfall & Wind Gust')  # Label for y-axis (left).
     ax3.set_ylabel('Air Pressure')  # Label for y-axis (right).
 
     # Set chart Titles
@@ -178,27 +189,27 @@ def storms(pdf, start_date, end_date):
     maxrain_val = data['Rain (mm)'].max()
     avgrain_val = data['Rain (mm)'].mean()
     rain_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{minrain_val:.2f} mm'),
-        Line2D([0], [0], color='white', lw=0, label=f'{maxrain_val:.2f} mm'),
-        Line2D([0], [0], color='white', lw=0, label=f'{avgrain_val:.2f} mm'),
+        Line2D([0], [0], color='white', lw=0, label=f'{minrain_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{maxrain_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{avgrain_val:.2f}'),
     ]
     # Compute Air Pressure stats
     minair_val = data['Atmospheric pressure (mbar)'].min()
     maxair_val = data['Atmospheric pressure (mbar)'].max()
     avgair_val = data['Atmospheric pressure (mbar)'].mean()
     air_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{minair_val:.2f} mbar'),
-        Line2D([0], [0], color='white', lw=0, label=f'{maxair_val:.2f} mbar'),
-        Line2D([0], [0], color='white', lw=0, label=f'{avgair_val:.2f} mbar'),
+        Line2D([0], [0], color='white', lw=0, label=f'{minair_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{maxair_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{avgair_val:.2f}'),
     ]
     # Compute Wind Gust stats
     minwind_val = data['Gust of wind (mph)'].min()
     maxwind_val = data['Gust of wind (mph)'].max()
     avgwind_val = data['Gust of wind (mph)'].mean()
     wind_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{minwind_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{maxwind_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{avgwind_val:.2f} mph'),
+        Line2D([0], [0], color='white', lw=0, label=f'{minwind_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{maxwind_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{avgwind_val:.2f}'),
     ]
 
     # Combine and insert legends for the three datasets
@@ -273,12 +284,12 @@ def humidity_rain(pdf, start_date, end_date):
 
     # plot the data
     # Plot the atmospheric pressure data on the primary y-axis. Label is for legend.
-    ax1.bar(data['Date (Europe/London)'], data['Rain (mm)'], label='Rainfall', color='cornflowerblue')
+    ax1.bar(data['Date (Europe/London)'], data['Rain (mm)'], label='Rainfall (mm)', color='cornflowerblue')
     # Create a secondary y-axis
     ax2 = ax1.twinx()
     # Plot the secondary y-axis
     ax2.plot(data['Date (Europe/London)'], data['Humidity (%)'], linestyle='solid', color='blue',
-             label='Humidity', alpha=0.7)
+             label='Humidity (%)', alpha=0.7)
 
     # x axis configuration
     x_min = data['Date (Europe/London)'].min()
@@ -326,8 +337,8 @@ def humidity_rain(pdf, start_date, end_date):
     ax2.tick_params(axis='x', which='minor', length=5, width=1)
     # Set axis labels
     ax1.set_xlabel('Daily date markers')  # Date label
-    ax1.set_ylabel('Rainfall (mm)')  # Label for y-axis (left).
-    ax2.set_ylabel('Humidity (%)')  # Label for y-axis (right).
+    ax1.set_ylabel('Rainfall')  # Label for y-axis (left).
+    ax2.set_ylabel('Humidity')  # Label for y-axis (right).
 
     # Set chart Titles
     fig.suptitle(f"{station_location} Humidity & Rainfall", fontsize=20)
@@ -349,18 +360,18 @@ def humidity_rain(pdf, start_date, end_date):
     rmax_val = data['Rain (mm)'].max()
     ravg_val = data['Rain (mm)'].mean()
     rain_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{rmin_val:.2f} mm'),
-        Line2D([0], [0], color='white', lw=0, label=f'{rmax_val:.2f} mm'),
-        Line2D([0], [0], color='white', lw=0, label=f'{ravg_val:.2f} mm'),
+        Line2D([0], [0], color='white', lw=0, label=f'{rmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{rmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{ravg_val:.2f} '),
     ]
     # Compute Humidity (%) statistics
     apmin_val = data['Humidity (%)'].min()
     apmax_val = data['Humidity (%)'].max()
     apavg_val = data['Humidity (%)'].mean()
     ap_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{apmin_val:.2f} %'),
-        Line2D([0], [0], color='white', lw=0, label=f'{apmax_val:.2f} %'),
-        Line2D([0], [0], color='white', lw=0, label=f'{apavg_val:.2f} %'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apavg_val:.2f}'),
     ]
 
     # Combine and insert legends for the three datasets
@@ -430,25 +441,25 @@ def wind_speed_gust(pdf, start_date, end_date):
 
     # plot the data
     # Plot average wind speed on the primary y-axis
-    ax1.bar(data['Date (Europe/London)'], data['Average wind speed (mph)'], label='Wind speed',
+    ax1.bar(data['Date (Europe/London)'], data['Average wind speed (mph)'], label='Wind speed (mph)',
             color='cornflowerblue')
     # Create a secondary y-axis
     ax2 = ax1.twinx()
     # Plot wind gust on the secondary y-axis
     ax2.plot(data['Date (Europe/London)'], data['Gust of wind (mph)'], linestyle='solid', color='darkblue',
-             label='Gust of wind', alpha=0.3, linewidth=0.6)
+             label='Wind gust (mph)', alpha=0.3, linewidth=0.6)
 
     # X-axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
     x_range = x_max - x_min  # Store range to avoid recomputation
-    margin = x_range * 0.01  # 2% of the data range
+    margin = x_range * 0.01  # 1% of the data range
 
     ax1.set_xlim(x_min - margin, x_max + margin)  # Apply limits with buffer
 
     # Y-axis configuration (Gust of wind)
-    a_min = np.floor(data['Gust of wind (mph)'].min() / 10) * 10
-    a_max = np.ceil(data['Gust of wind (mph)'].max() / 10) * 10
+    a_min = np.floor(data['Gust of wind (mph)'].min())
+    a_max = np.ceil(data['Gust of wind (mph)'].max() / 5) * 5
 
     ax1.set_ylim(a_min, a_max)
     ax2.set_ylim(a_min, a_max)  # Keep y-axis scale consistent
@@ -471,7 +482,7 @@ def wind_speed_gust(pdf, start_date, end_date):
     ax2.tick_params(axis='x', which='minor', length=5, width=1)
     # Set y axis labels
     ax1.set_xlabel('Daily date markers')  # Date label
-    ax1.set_ylabel('Wind Gust (mph)')  # Label for y-axis (left).
+    ax1.set_ylabel('Wind')  # Label for y-axis (left).
 
     # Set chart Titles
     fig.suptitle(f"{station_location} Wind Speed & Gusts", fontsize=20)
@@ -493,18 +504,18 @@ def wind_speed_gust(pdf, start_date, end_date):
     awmax_val = data['Average wind speed (mph)'].max()
     awavg_val = data['Average wind speed (mph)'].mean()
     aw_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{awmin_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{awmax_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{awavg_val:.2f} mph'),
+        Line2D([0], [0], color='white', lw=0, label=f'{awmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{awmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{awavg_val:.2f}'),
     ]
     # Compute wind gust statistics
     wgmin_val = data['Gust of wind (mph)'].min()
     wgmax_val = data['Gust of wind (mph)'].max()
     wgavg_val = data['Gust of wind (mph)'].mean()
     wg_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{wgmin_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{wgmax_val:.2f} mph'),
-        Line2D([0], [0], color='white', lw=0, label=f'{wgavg_val:.2f} mph'),
+        Line2D([0], [0], color='white', lw=0, label=f'{wgmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{wgmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{wgavg_val:.2f}'),
     ]
 
     # Combine and insert legends for the three datasets
@@ -576,7 +587,7 @@ def solaruv(pdf, start_date, end_date):
     # plot the data
     # Plot the atmospheric pressure data on the primary y-axis. Label is for legend.
     ax1.bar(data['Date (Europe/London)'], data['Solar radiation (W/m²)'], linestyle='solid', color='gold',
-            label='Solar radiation')
+            label='Solar radiation (W/m²)')
     # Create a secondary y-axis
     ax2 = ax1.twinx()
     # Plot the secondary y-axis
@@ -594,7 +605,7 @@ def solaruv(pdf, start_date, end_date):
 
     # Solar Radiation (larger range, round to nearest 10)
     b_min = min(0, data['Solar radiation (W/m²)'].min())
-    b_max = round_up_nearest(data['Solar radiation (W/m²)'].max(), 10)
+    b_max = round_up_nearest(data['Solar radiation (W/m²)'].max(), 10) +50 # +5 buffer
     ax1.set_ylim(b_min, b_max)
     ax1.minorticks_on()
 
@@ -622,7 +633,7 @@ def solaruv(pdf, start_date, end_date):
     ax2.tick_params(axis='x', which='minor', length=5, width=1)
     # Set axis labels
     ax1.set_xlabel('Daily date markers')  # Date label
-    ax1.set_ylabel('Solar radiation (W/m²)')  # Label for y-axis (left).
+    ax1.set_ylabel('Solar radiation')  # Label for y-axis (left).
     ax2.set_ylabel('UV Index')  # Label for y-axis (right).
 
     # Set chart Titles
@@ -636,9 +647,9 @@ def solaruv(pdf, start_date, end_date):
     # Set Max, Min, & Avg legend labels
     stat_labels = [
         Line2D([0], [0], color='white', lw=0, label=f''),
-        Line2D([0], [0], color='white', lw=0, label=f'Minimum: '),
-        Line2D([0], [0], color='white', lw=0, label=f'Maximum: '),
-        Line2D([0], [0], color='white', lw=0, label=f'Average: '),
+        Line2D([0], [0], color='white', lw=0, label=f'Minimum:'),
+        Line2D([0], [0], color='white', lw=0, label=f'Maximum:'),
+        Line2D([0], [0], color='white', lw=0, label=f'Average:'),
     ]
     # Compute UV Index statistics
     uvmin_val = data['UV index'].min()
@@ -654,9 +665,9 @@ def solaruv(pdf, start_date, end_date):
     srmax_val = data['Solar radiation (W/m²)'].max()
     sravg_val = data['Solar radiation (W/m²)'].mean()
     sr_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{srmin_val:.2f} W/m²'),
-        Line2D([0], [0], color='white', lw=0, label=f'{srmax_val:.2f} W/m²'),
-        Line2D([0], [0], color='white', lw=0, label=f'{sravg_val:.2f} W/m²'),
+        Line2D([0], [0], color='white', lw=0, label=f'{srmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{srmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{sravg_val:.2f}'),
     ]
 
     # Combine and insert legends for the three datasets
@@ -731,7 +742,7 @@ def temperature(pdf, start_date, end_date):
     # X-axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
-    margin = (x_max - x_min) * 0.01  # 2% buffer
+    margin = (x_max - x_min) * 0.01  # 1% buffer
     ax.set_xlim(x_min - margin, x_max + margin)
 
     # Y-axis configuration with buffer
@@ -757,7 +768,7 @@ def temperature(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Air Temperature (°C)')  # Label for y-axis (left).
+    ax.set_ylabel('Air Temperature')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -773,9 +784,9 @@ def temperature(pdf, start_date, end_date):
     max_val = data['Temperature (°C)'].max()
     avg_val = data['Temperature (°C)'].mean()
     # Superimpose Min, Max, and Avg lines
-    ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f} °C')
-    ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f} °C')
-    ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f} °C')
+    ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f}°C')
+    ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f}°C')
+    ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f}°C')
     # Insert the legend
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
@@ -867,7 +878,7 @@ def pressure(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Air Pressure (mbar)')  # Label for y-axis (left).
+    ax.set_ylabel('Air Pressure')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1011,7 +1022,7 @@ def rain(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Daily Rainfall (mm)')  # Label for y-axis (left).
+    ax.set_ylabel('Daily Rainfall')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1079,7 +1090,7 @@ def humidity(pdf, start_date, end_date):
     # X-axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
-    margin = (x_max - x_min) * 0.01  # 2% buffer
+    margin = (x_max - x_min) * 0.01  # 1% buffer
     ax.set_xlim(x_min - margin, x_max + margin)
 
     # Y-axis configuration with buffer
@@ -1105,7 +1116,7 @@ def humidity(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Humidity (%)')  # Label for y-axis (left).
+    ax.set_ylabel('Humidity')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1121,9 +1132,9 @@ def humidity(pdf, start_date, end_date):
     max_val = data['Humidity (%)'].max()
     avg_val = data['Humidity (%)'].mean()
     # Superimpose Min, Max, and Avg lines
-    ax.axhline(min_val, color='lightblue', linestyle='--', label=f'Min: {min_val:.2f} %')
-    ax.axhline(max_val, color='darkblue', linestyle='--', label=f'Max: {max_val:.2f} %')
-    ax.axhline(avg_val, color='aqua', linestyle='--', label=f'Average: {avg_val:.2f} %')
+    ax.axhline(min_val, color='lightblue', linestyle='--', label=f'Min: {min_val:.2f}%')
+    ax.axhline(max_val, color='darkblue', linestyle='--', label=f'Max: {max_val:.2f}%')
+    ax.axhline(avg_val, color='aqua', linestyle='--', label=f'Average: {avg_val:.2f}%')
     # Insert the legend
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
@@ -1195,8 +1206,8 @@ def wind_speed(pdf, start_date, end_date):
     a_min = data['Average wind speed (mph)'].min()
     a_max = data['Average wind speed (mph)'].max()
     # Round down min to the nearest 10, and up max to the nearest 10
-    y_min = np.floor(a_min / 10) * 10
-    y_max = np.ceil(a_max / 10) * 10
+    y_min = np.floor(a_min)
+    y_max = np.ceil(a_max / 5) * 5
     # Apply the new limits to the y-axis
     ax.set_ylim(y_min, y_max)
     ax.minorticks_on()
@@ -1212,7 +1223,7 @@ def wind_speed(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Wind Speed (mph)')  # Label for y-axis (left).
+    ax.set_ylabel('Wind Speed')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1300,8 +1311,8 @@ def wind_gust(pdf, start_date, end_date):
     a_min = data['Gust of wind (mph)'].min()
     a_max = data['Gust of wind (mph)'].max()
     # Round down min to the nearest 10, and up max to the nearest 10
-    y_min = np.floor(a_min / 10) * 10
-    y_max = np.ceil(a_max / 10) * 10
+    y_min = np.floor(a_min)
+    y_max = np.ceil(a_max / 5) * 5
         # Apply the new limits to the y-axis
     ax.set_ylim(y_min, y_max)
     ax.minorticks_on()
@@ -1317,7 +1328,7 @@ def wind_gust(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
        # Set axis labels
-    ax.set_ylabel('Wind Gust (mph)') # Label for y-axis (left).
+    ax.set_ylabel('Wind Gust') # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1469,12 +1480,12 @@ def temperature_indoor(pdf, start_date, end_date):
 
     # plot the data
     ax.plot(data['Date (Europe/London)'], data['Inside temperature (°C)'], linestyle='solid', color='darkkhaki',
-            label='Inside temperature')
+            label='Inside temperature (°C)')
 
     # X-axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
-    margin = (x_max - x_min) * 0.01  # 2% buffer
+    margin = (x_max - x_min) * 0.01  # 1% buffer
     ax.set_xlim(x_min - margin, x_max + margin)
 
     # Y-axis configuration with buffer
@@ -1500,7 +1511,7 @@ def temperature_indoor(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Indoor Air Temperature (°C)')  # Label for y-axis (left).
+    ax.set_ylabel('Indoor Air Temperature')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1516,9 +1527,9 @@ def temperature_indoor(pdf, start_date, end_date):
     max_val = data['Inside temperature (°C)'].max()
     avg_val = data['Inside temperature (°C)'].mean()
     # Superimpose Min, Max, and Avg lines
-    ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f} °C')
-    ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f} °C')
-    ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f} °C')
+    ax.axhline(min_val, color='deepskyblue', linestyle='--', label=f'Min: {min_val:.2f}°C')
+    ax.axhline(max_val, color='lightcoral', linestyle='--', label=f'Max: {max_val:.2f}°C')
+    ax.axhline(avg_val, color='gold', linestyle='--', label=f'Average: {avg_val:.2f}°C')
     # Insert the legend
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
@@ -1578,12 +1589,12 @@ def humidity_indoor(pdf, start_date, end_date):
 
     # plot the data
     ax.plot(data['Date (Europe/London)'], data['Inside humidity (%)'], linestyle='solid', color='blue',
-            label='Indoor Air Humidity')  # Label for legend
+            label='Indoor Air Humidity (%)')  # Label for legend
 
     # X-axis configuration
     x_min = data['Date (Europe/London)'].min()
     x_max = data['Date (Europe/London)'].max()
-    margin = (x_max - x_min) * 0.01  # 2% buffer
+    margin = (x_max - x_min) * 0.01  # 1% buffer
     ax.set_xlim(x_min - margin, x_max + margin)
 
     # Y-axis configuration with buffer
@@ -1609,7 +1620,7 @@ def humidity_indoor(pdf, start_date, end_date):
     ax.tick_params(axis='x', which='major', length=10, width=1, pad=5)
     ax.tick_params(axis='x', which='minor', length=5, width=1, labelbottom=False)
     # Set axis labels
-    ax.set_ylabel('Indoor Air Humidity (%)')  # Label for y-axis (left).
+    ax.set_ylabel('Indoor Air Humidity')  # Label for y-axis (left).
     ax.set_xlabel('Daily date markers')  # Date label
 
     # Set chart Titles
@@ -1625,9 +1636,9 @@ def humidity_indoor(pdf, start_date, end_date):
     max_val = data['Inside humidity (%)'].max()
     avg_val = data['Inside humidity (%)'].mean()
     # Superimpose Min, Max, and Avg lines
-    ax.axhline(min_val, color='lightblue', linestyle='--', label=f'Min: {min_val:.2f} %')
-    ax.axhline(max_val, color='darkblue', linestyle='--', label=f'Max: {max_val:.2f} %')
-    ax.axhline(avg_val, color='aqua', linestyle='--', label=f'Average: {avg_val:.2f} %')
+    ax.axhline(min_val, color='lightblue', linestyle='--', label=f'Min: {min_val:.2f}%')
+    ax.axhline(max_val, color='darkblue', linestyle='--', label=f'Max: {max_val:.2f}%')
+    ax.axhline(avg_val, color='aqua', linestyle='--', label=f'Average: {avg_val:.2f}%')
     # Insert the legend
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.35), ncol=4, edgecolor='lightgray', )  # show legend
 
@@ -1687,13 +1698,13 @@ def temperature_humidity_indoor(pdf, start_date, end_date):
 
     # plot the data
     # Plot the atmospheric pressure data on the primary y-axis. Label is for legend.
-    ax1.bar(data['Date (Europe/London)'], data['Inside temperature (°C)'], label='Indoor temperature',
+    ax1.bar(data['Date (Europe/London)'], data['Inside temperature (°C)'], label='Indoor temperature (°C)',
             color='darkkhaki')
     # Create a secondary y-axis
     ax2 = ax1.twinx()
     # Plot the secondary y-axis
     ax2.plot(data['Date (Europe/London)'], data['Inside humidity (%)'], linestyle='solid', color='blue',
-             label='Indoor humidity', alpha=0.7)
+             label='Indoor humidity (%)', alpha=0.7)
 
     # x axis configuration
     x_min = data['Date (Europe/London)'].min()
@@ -1741,8 +1752,8 @@ def temperature_humidity_indoor(pdf, start_date, end_date):
     ax2.tick_params(axis='x', which='minor', length=5, width=1)
     # Set axis labels
     ax1.set_xlabel('Daily date markers')  # Date label
-    ax1.set_ylabel('Indoor Temperature (°C)')  # Label for y-axis (left).
-    ax2.set_ylabel('Indoor Humidity (%)')  # Label for y-axis (right).
+    ax1.set_ylabel('Indoor Temperature')  # Label for y-axis (left).
+    ax2.set_ylabel('Indoor Humidity')  # Label for y-axis (right).
 
     # Set chart Titles
     fig.suptitle("Indoor Temperature & Humidity", fontsize=20)
@@ -1764,18 +1775,18 @@ def temperature_humidity_indoor(pdf, start_date, end_date):
     rmax_val = data['Inside temperature (°C)'].max()
     ravg_val = data['Inside temperature (°C)'].mean()
     rain_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{rmin_val:.2f} °C'),
-        Line2D([0], [0], color='white', lw=0, label=f'{rmax_val:.2f} °C'),
-        Line2D([0], [0], color='white', lw=0, label=f'{ravg_val:.2f} °C'),
+        Line2D([0], [0], color='white', lw=0, label=f'{rmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{rmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{ravg_val:.2f}'),
     ]
     # Compute Indoor humidity (%) statistics
     apmin_val = data['Inside humidity (%)'].min()
     apmax_val = data['Inside humidity (%)'].max()
     apavg_val = data['Inside humidity (%)'].mean()
     ap_stat_handles = [
-        Line2D([0], [0], color='white', lw=0, label=f'{apmin_val:.2f} %'),
-        Line2D([0], [0], color='white', lw=0, label=f'{apmax_val:.2f} %'),
-        Line2D([0], [0], color='white', lw=0, label=f'{apavg_val:.2f} %'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apmin_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apmax_val:.2f}'),
+        Line2D([0], [0], color='white', lw=0, label=f'{apavg_val:.2f}'),
     ]
 
     # Combine and insert legends for the three datasets
@@ -1825,9 +1836,9 @@ def generate_full_report():
                                                   errors='coerce')
     data = data.sort_values(by='Date (Europe/London)')
     # Print data ranges
-    print("\n Date range found:")
-    print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d-%m-%Y %H:%M hrs')}")
-    print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d-%m-%Y %H:%M hrs')}")
+    print("\n Data range found:")
+    print(f"    Start: {data['Date (Europe/London)'].min().strftime('%d/%m/%Y')}")
+    print(f"    End:   {data['Date (Europe/London)'].max().strftime('%d/%m/%Y')}")
 
     start_date, end_date = get_user_date_range(data)
 
