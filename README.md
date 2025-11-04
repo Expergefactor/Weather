@@ -1,8 +1,8 @@
 # Weather
 Weather Analytics for weather stations
 
-Autumn 2025 Update:
- * Bugs squished:
+Autumn 2025 Update...
+Bugs squished:
  * Removed some redundant imports
  * Fixed rain/wind gust scaling issue in storms analysis
  * Fixed solar radiation scaling issue in Solar Radiation & UV Index analysis
