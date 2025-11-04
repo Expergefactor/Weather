@@ -56,16 +56,9 @@ Public Analytics:
 
 # DEPENDENCIES:
 
- *  chardet – character encoding detection.
+ *  pip
  *  pandas – data manipulation and analysis library.
- *  numpy – numerical computations.
  *  matplotlib – Plotting library.
-
-These are third-party libraries and need to be installed manually:
-
-```bash
-sudo apt install python3-pandas python3-chardet python3-numpy python3-matplotlib -y
-```
 
 # DEBUG
 
