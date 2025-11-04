@@ -29,23 +29,23 @@ Sub Menu (option 2 from main menu):
 
 # WHAT IS IT?
 This software is designed to be used with weather station data and provides a total of 14 analytics:
- * 11 public (outdoor)
- * 3 private (indoor)
- * 'Snapshot' feature provides an 'at a glance', single page report for:
-    Hottest Day
-    Driest Period
-    Coldest Day
-    Wettest Day
-    Biggest Downpour
-    Total Rainfall
-    Windiest Day
-    Average wind direction
-    Snapshot reports on 3 criteria: 
-    For the user-defined date period,
-    For 'Year-To-Date' &,
-    Since your records began. 
+ * 11 public (outdoor data).
+ * 3 private (indoor data).
+ * 'Snapshot' feature provides an 'at a glance', single page report.
 
-You have the option of generating a full report (from the main menu) which conducts analytics on all datasets or, conducting a single report (from the sub menu using option 4) for an individual dataset.
+You have the option of generating a full report (from the main menu) which conducts analytics on all datasets or, conducting a single report (from the sub menu using option 2) for an individual dataset. The new 'Snapshot' function (option 3) provides an 'at a glance', single page report for:
+    * Hottest Day
+    * Driest Period
+    * Coldest Day
+    * Wettest Day
+    * Biggest Downpour
+    * Total Rainfall
+    * Windiest Day
+    * Average wind direction
+    * Snapshot reports on 3 criteria: 
+    * For the user-defined date period,
+    * For 'Year-To-Date' &,
+    * Since your records began. 
 
 # WHAT DOES IT DO?
 You can view examples of the analytics in the '/example' folder. Note: individual reports created from the sub-menu are identical to those contained in the full reports when using the main menu, it is just a function provided to enable an individual report to be created without generating a report for every type of metric. 
