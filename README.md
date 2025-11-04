@@ -59,17 +59,19 @@ You can view examples of the analytics in the '/example' folder. Note: individua
  * Run terminal, cd to the package root dir.
  * Put all weather station .csv files into folder: "database/original/"
  * run 'python3 menu.py'
- * Use option 2 to compile all weather station files into a single database
- * Now you can use functions 3 & 4
- * Keep adding more weather station files and use option 2 to ingest them into the working database
- * Option 1 from the main menu is a reminder of some of the information contained here.
+ * Normalise the original files
+ * Compile the database
+ * Generate reports
 
 # COMPONENTS:
 System:
   * menu.py         Control module for all functions
-  * compile.py	    Compiles database files in preparation for processing
+  * compile.py	     Compiles database files in preparation for processing
   * utilities.py    Hosts various supporting functions
   * report_full.py  Conducts all available analytics and generates two reports (private & public).
+
+Snapshot
+  * snapshot.py         Create a glance view of key statistics.
   
 Private Analytics:
   * indoor_temp.py      Charting - indoor air temperature (line) over time.
@@ -86,8 +88,8 @@ Public Analytics:
   * windspeed.py        Charting - wind speed (line) over time.
   * windspeeddistro.py  Charting - wind direction distribution (radial).
   * windspeedgust.py    Charting - wind speed (bar) against wind gusts (line) over time.
-  * solaruv.py	        Charting - solar radiation (bar) against UV index (line) over time.
-  * storms.py	          Charting - atmospheric pressure (line), rainfall (bar) & wind gust (line) over time.
+  * solaruv.py	         Charting - solar radiation (bar) against UV index (line) over time.
+  * storms.py	         Charting - atmospheric pressure (line), rainfall (bar) & wind gust (line) over time.
 
 # DEPENDENCIES:
 
