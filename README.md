@@ -33,7 +33,11 @@ This software is designed to be used with weather station data and provides a to
  * 3 private (indoor data).
  * 'Snapshot' feature provides an 'at a glance', single page report.
 
-You have the option of generating a full report (from the main menu) which conducts analytics on all datasets or, conducting a single report (from the sub menu using option 2) for an individual dataset. The new 'Snapshot' function (option 3) provides an 'at a glance', single page report for:
+You have the option of:
+*   generating a full report (main menu, option 1) which conducts analytics on all datasets or,
+*   conducting a single report (sub menu, option 2) for an individual dataset or,
+*   Creating a 'Snapshot' (main menu, option 3) provides an 'at a glance', single page report for:
+
     * Hottest Day
     * Driest Period
     * Coldest Day
