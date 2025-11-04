@@ -23,7 +23,7 @@ Main Menu:
 
 ![menu](https://github.com/Expergefactor/Weather/blob/main/helpers/img/menu.png)
 
-Sub Menu (option 4 from main menu):
+Sub Menu (option 2 from main menu):
 
 ![menu2](https://github.com/Expergefactor/Weather/blob/main/helpers/img/menu2.jpg)
 
