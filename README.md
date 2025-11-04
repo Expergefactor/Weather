@@ -10,6 +10,7 @@ Bugs squished:
  * Fixed date axis buffer issue on some analytics
  * Fixed units repetition on full report chats keys
  * Adjusted some axis labels
+
 New features:
  * Updated main menu.
  * Updated help & information.
